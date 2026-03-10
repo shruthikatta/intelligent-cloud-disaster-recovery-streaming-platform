@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ML artifacts
+*.h5
+*.keras
+models/checkpoints/
+services/ml-predictor/data/generated/
+
+# Env & secrets
+.env
+.env.local
+.env.*.local
+!.env.aws.example
+
+# Node
+node_modules/
+dist/
+*.log
+.npm
+.pnpm-store/
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# SQLite local DB
+*.db
+data/*.db

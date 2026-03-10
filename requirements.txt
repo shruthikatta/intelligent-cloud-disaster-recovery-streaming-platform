@@ -1,0 +1,31 @@
+# Backend & API
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+pydantic==2.10.4
+pydantic-settings==2.7.0
+email-validator==2.2.0
+httpx==0.28.1
+python-jose[cryptography]==3.3.0
+bcrypt>=4.0.0
+
+# Database (greenlet is required for SQLAlchemy asyncio — not always pulled as a transitive dep)
+sqlalchemy==2.0.36
+greenlet>=3.0.0
+aiosqlite==0.20.0
+pymysql==1.1.1
+aiomysql==0.2.0
+
+# AWS
+boto3==1.35.90
+botocore==1.35.90
+
+# ML (TensorFlow pin: 2.18 is unavailable on newer Python / some indexes — use 2.20+)
+tensorflow==2.20.0
+numpy>=1.26.0,<2.2.0
+pandas==2.2.3
+scikit-learn==1.6.0
+
+# Utils
+python-dotenv==1.0.1
+eval-type-backport==0.2.0
