@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base matches `sv.page` / `sv.ink` — keep in sync with tailwind.config.js `sv` palette */
+body {
+  background-color: #141414;
+  color: #ffffff;
+  font-family: "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hero: cinematic dark lift + subtle vignette (Netflix-style billboard) */
+.hero-gradient {
+  background:
+    radial-gradient(ellipse 120% 80% at 80% 20%, rgba(229, 9, 20, 0.12), transparent 55%),
+    linear-gradient(180deg, #1f1f1f 0%, #181818 45%, #141414 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.row-mask {
+  mask-image: linear-gradient(to right, black 85%, transparent 100%);
+}
