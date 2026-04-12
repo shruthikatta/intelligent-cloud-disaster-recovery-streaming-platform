@@ -1,0 +1,47 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "S3Bucket",
+      "Effect": "Allow",
+      "Action": ["s3:PutObject", "s3:GetObject", "s3:HeadObject", "s3:ListBucket"],
+      "Resource": ["arn:aws:s3:::REPLACE_BUCKET", "arn:aws:s3:::REPLACE_BUCKET/*"]
+    },
+    {
+      "Sid": "CloudWatchMetrics",
+      "Effect": "Allow",
+      "Action": ["cloudwatch:PutMetricData", "cloudwatch:GetMetricStatistics"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "EventBridgeDefaultBus",
+      "Effect": "Allow",
+      "Action": ["events:PutEvents"],
+      "Resource": "arn:aws:events:REPLACE_REGION:REPLACE_ACCOUNT_ID:event-bus/default"
+    },
+    {
+      "Sid": "LambdaInvokeRecovery",
+      "Effect": "Allow",
+      "Action": ["lambda:InvokeFunction"],
+      "Resource": "REPLACE_LAMBDA_ARN"
+    },
+    {
+      "Sid": "SNSPublish",
+      "Effect": "Allow",
+      "Action": ["sns:Publish"],
+      "Resource": "REPLACE_SNS_TOPIC_ARN"
+    },
+    {
+      "Sid": "SQS",
+      "Effect": "Allow",
+      "Action": ["sqs:SendMessage", "sqs:ReceiveMessage", "sqs:GetQueueUrl", "sqs:GetQueueAttributes"],
+      "Resource": "REPLACE_SQS_QUEUE_ARN"
+    },
+    {
+      "Sid": "SageMakerOptional",
+      "Effect": "Allow",
+      "Action": ["sagemaker:InvokeEndpoint"],
+      "Resource": "*"
+    }
+  ]
+}
