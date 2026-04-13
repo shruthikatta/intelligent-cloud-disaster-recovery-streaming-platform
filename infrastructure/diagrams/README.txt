@@ -1,0 +1,1 @@
+Architecture diagrams for slides: export from the Mermaid snippets in README.md and docs/RUN_INSTRUCTIONS.md, or use draw.io / Lucidchart with the same component list (Route 53, ALB, EC2, RDS, S3, CloudWatch, EventBridge, Lambda, SageMaker, SNS/SQS).

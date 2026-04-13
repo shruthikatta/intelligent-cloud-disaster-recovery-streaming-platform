@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Placeholder stack for StreamVault — wire VPC, ALB, EC2, RDS, S3, CloudWatch,
+  EventBridge, Lambda, SNS/SQS, and Route53 per docs/AWS_INTEGRATION_GUIDE.md.
+  This template is intentionally minimal for coursework; extend before production.
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: streamvault
+  PrimaryRegion:
+    Type: String
+    Default: us-west-2
+
+Resources:
+  PlaceholderBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${ProjectName}-assets-${AWS::AccountId}-placeholder"
+
+Outputs:
+  BucketName:
+    Value: !Ref PlaceholderBucket
