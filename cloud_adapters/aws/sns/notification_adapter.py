@@ -12,7 +12,8 @@ class SNSNotificationAdapter:
         self._topic = get_aws_settings().sns_topic_arn
 
     async def publish_alert(self, subject: str, message: str, attributes: dict[str, str] | None = None) -> str:
-        kwargs: dict = {"TopicArn": self._topic, "Subject": subject, "Message": message}
+        subj = (subject or "").strip() or "StreamVault alert"
+        kwargs: dict = {"TopicArn": self._topic, "Subject": subj, "Message": message}
         if attributes:
             kwargs["MessageAttributes"] = {
                 k: {"DataType": "String", "StringValue": v} for k, v in attributes.items()
