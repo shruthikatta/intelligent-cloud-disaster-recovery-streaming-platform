@@ -12,6 +12,7 @@ METRIC_NAMES = ["cpu_utilization", "request_rate", "latency_ms", "network_mbps",
 
 
 async def build_feature_window(lookback: int = 24) -> tuple[list[list[float]], list[int]]:
+    lookback = max(1, lookback)
     adapter = get_metrics_adapter()
     end = now_ms()
     start = end - lookback * 60_000  # assume ~1 point/min if simulator every 3s we still have many points
