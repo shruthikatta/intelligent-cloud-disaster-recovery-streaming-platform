@@ -65,6 +65,9 @@ class MetricSimulator:
                 lat = lat * 2.5
                 err = 0.08
 
+        base_cpu = min(1.0, max(0.0, base_cpu))
+        err = min(1.0, max(0.0, err))
+
         return {
             "cpu_utilization": base_cpu,
             "request_rate": req,
