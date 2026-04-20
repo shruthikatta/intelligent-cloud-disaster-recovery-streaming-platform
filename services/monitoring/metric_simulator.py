@@ -115,4 +115,4 @@ def series_for_chart(
     points: list[dict[str, Any]],
     key: str = "value",
 ) -> list[dict[str, Any]]:
-    return [{"t": p["timestamp_ms"], "v": p.get(key, p.get("value"))} for p in points]
+    return [{"t": p["timestamp_ms"], "v": p.get(key, p.get("value")) or 0.0} for p in points]
