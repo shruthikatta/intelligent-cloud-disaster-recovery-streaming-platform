@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: >
   Placeholder stack for StreamVault — wire VPC, ALB, EC2, RDS, S3, CloudWatch,
   EventBridge, Lambda, SNS/SQS, and Route53 per docs/AWS_INTEGRATION_GUIDE.md.
-  This template is intentionally minimal for coursework; extend before production.
+  This template is intentionally minimal for illustration; extend before production.
 
 Parameters:
   ProjectName:

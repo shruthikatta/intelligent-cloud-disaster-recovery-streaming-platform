@@ -18,7 +18,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.get("/demo-accounts")
 async def demo_accounts() -> list[dict[str, str]]:
-    """Returns seeded demo emails/passwords only in mock mode (for class demos). Empty in aws mode."""
+    """Returns seeded demo emails/passwords only in mock mode. Empty in aws mode."""
     if get_settings().app_mode != "mock":
         return []
     return [dict(a) for a in DEMO_ACCOUNTS]

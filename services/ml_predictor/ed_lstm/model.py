@@ -6,7 +6,7 @@ Encoder-Decoder LSTM for multivariate cloud metrics (seq2seq-style).
 Input: past window (lookback x n_features)
 Output: future window (horizon x n_features)
 
-Kept compact for coursework: 2-layer encoder, 2-layer decoder with RepeatVector + TimeDistributed Dense.
+Kept compact for demos and fast iteration: 2-layer encoder, 2-layer decoder with RepeatVector + TimeDistributed Dense.
 """
 
 

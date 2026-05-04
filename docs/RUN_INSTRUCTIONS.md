@@ -1,10 +1,6 @@
 # Run instructions — exact paths and commands
 
-All paths below are relative to the repository root:
-
-`/Users/shruthikatta/Desktop/CMPE281/intelligent-cloud-disaster-recovery-streaming-platform/`
-
-On your machine, use your own clone path; the **relative** paths inside the repo are what matter.
+All paths below are relative to the repository root. Use your own clone directory on disk; the **relative** paths inside the repo are what matter.
 
 ---
 
@@ -19,7 +15,7 @@ On your machine, use your own clone path; the **relative** paths inside the repo
 ## 1. Python environment
 
 ```bash
-cd /Users/shruthikatta/Desktop/CMPE281/intelligent-cloud-disaster-recovery-streaming-platform
+cd /path/to/intelligent-cloud-disaster-recovery-streaming-platform
 python3 -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
@@ -203,7 +199,7 @@ python scripts/verify_aws_connection.py
 
 ## 11. Optional Docker Compose
 
-**File:** `docker-compose.yml` at repo root — installs deps inside containers and exposes API + frontend dev. For a graded demo, running natively with the commands above is usually simpler.
+**File:** `docker-compose.yml` at repo root — installs deps inside containers and exposes API + frontend dev. For local development, running natively with the commands above is often simpler.
 
 ```bash
 docker compose up --build

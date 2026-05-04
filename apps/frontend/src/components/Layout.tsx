@@ -42,7 +42,7 @@ export function Layout() {
         <Outlet />
       </main>
       <footer className="border-t border-sv-line bg-black/30 py-8 text-center text-xs text-sv-dim">
-        Academic demo · Intelligent Cloud Disaster Recovery · Not affiliated with any commercial streamer
+        Demo reference implementation · Intelligent Cloud Disaster Recovery · Not affiliated with any commercial streamer
       </footer>
     </div>
   );

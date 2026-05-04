@@ -186,7 +186,7 @@ aws rds create-db-instance \
   --no-deletion-protection
 ```
 
-> **Note:** `--publicly-accessible` simplifies coursework; for production use private subnets + bastion or VPN.
+> **Note:** `--publicly-accessible` keeps this tutorial simple; for production use private subnets + bastion or VPN.
 
 Wait until **available**:
 
@@ -445,7 +445,7 @@ aws iam create-policy --policy-name StreamVaultAppPolicy --policy-document file:
 
 The code path **`SageMakerInferenceAdapter`** expects a deployed endpoint and a JSON body `{"instances": [window]}`. Training/deploying a custom container is **not** scripted here.
 
-**Practical course path:** keep **`ed_lstm_demo.keras`** on the EC2 host and **`ML_MODEL_PATH`** pointing to it so **`LocalTensorFlowInferenceAdapter`** is used (no SageMaker required).
+**Practical default:** keep **`ed_lstm_demo.keras`** on the EC2 host and **`ML_MODEL_PATH`** pointing to it so **`LocalTensorFlowInferenceAdapter`** is used (no SageMaker required).
 
 To force SageMaker: remove or relocate the `.keras` file, set `SAGEMAKER_ENDPOINT_NAME`, and align the endpoint’s input/output schema with `cloud_adapters/aws/sagemaker/model_inference_adapter.py`.
 

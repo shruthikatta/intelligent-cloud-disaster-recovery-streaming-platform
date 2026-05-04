@@ -1,4 +1,4 @@
-# StreamVault — Intelligent Cloud Disaster Recovery (academic demo)
+# StreamVault — Intelligent Cloud Disaster Recovery
 
 **Intelligent Cloud Disaster Recovery System using Machine Learning** — Video streaming experience with an admin control plane for proactive failover driven by an Encoder–Decoder LSTM (ED-LSTM) on multivariate metrics.
 
@@ -67,7 +67,7 @@ Exact commands and paths are in **`docs/RUN_INSTRUCTIONS.md`**.
 
 **Demo logins:** see `apps/backend/app/demo_accounts.py` (seeded by `scripts/seed_data.py`). The sign-in page loads them from `GET /api/auth/demo-accounts` in mock mode so you can one-click fill email/password.
 
-## Demo flow (for presentations)
+## Demo walkthrough
 
 1. Open user app → browse and play sample streams (Big Buck Bunny sample URLs).
 2. Open admin → watch live metric chart update.
@@ -77,7 +77,7 @@ Exact commands and paths are in **`docs/RUN_INSTRUCTIONS.md`**.
 
 ## Screenshots (placeholders)
 
-Add your own captures before submission:
+Add your own captures here:
 
 - `docs/screenshots/user-home.png` — hero + rows
 - `docs/screenshots/player.png` — video player
@@ -129,6 +129,6 @@ docs/
 | Rishikesh Reddy Aluguvelli | [@Rishikesh-Reddy](https://github.com/Rishikesh-Reddy) |
 | Vikramadithya Baddam | [@Vikramadithya-baddam](https://github.com/Vikramadithya-baddam) |
 
-## License / academic use
+## License
 
-Built for coursework; sample video links point to publicly hosted demo assets—verify licensing for your class policies.
+Sample video links point to publicly hosted demo assets—verify licensing before redistribution or commercial use.
