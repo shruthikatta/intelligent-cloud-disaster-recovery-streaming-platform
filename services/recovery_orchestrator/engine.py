@@ -15,7 +15,6 @@ from shared.config.settings import get_settings
 from cloud_adapters.dependency_factory import (
     get_dns_adapter,
     get_event_bus_adapter,
-    get_model_inference_adapter,
     get_notification_adapter,
     get_queue_adapter,
     get_recovery_adapter,
@@ -34,9 +33,16 @@ class RecoveryEngine:
     ) -> dict[str, Any]:
         settings = get_settings()
         action: Action = "monitor"
-        if anomaly and severity > 0.5:
+        # Failover used to require anomaly=True; ED-LSTM often leaves anomaly=False while
+        # mean_abs_error / threshold_dynamic still implies severe drift → endless "warn".
+        model_failover = anomaly and severity > 0.5
+        stress_failover = severity >= 0.75
+        should_failover = model_failover or stress_failover
+        should_warn = (anomaly or severity > 0.25) and not should_failover
+
+        if should_failover:
             action = "failover"
-        elif anomaly or severity > 0.25:
+        elif should_warn:
             action = "warn"
 
         detail = {
@@ -44,6 +50,11 @@ class RecoveryEngine:
             "severity": severity,
             "mae": mean_abs_error,
             "action": action,
+            "failover_trigger": (
+                "model_anomaly"
+                if should_failover and model_failover
+                else ("severity_escalation" if should_failover and stress_failover else None)
+            ),
             "primary_region": settings.primary_region,
             "dr_region": settings.dr_region,
         }
@@ -62,9 +73,14 @@ class RecoveryEngine:
 
         if action == "failover":
             rec = get_recovery_adapter()
+            reason = (
+                "model_anomaly"
+                if detail.get("failover_trigger") == "model_anomaly"
+                else "severity_escalation"
+            )
             await rec.invoke_recovery_workflow(
                 "proactive_failover",
-                {"reason": "model_anomaly", **detail},
+                {"reason": reason, **detail},
             )
             dns = get_dns_adapter()
             await dns.shift_traffic_to("dr", "proactive ML-driven failover")
@@ -78,12 +94,17 @@ class RecoveryEngine:
             "detail": detail,
         }
         state.append_timeline(entry)
-        if anomaly:
+        if anomaly or action == "failover":
+            msg = (
+                f"ED-LSTM flagged anomaly (action={action})"
+                if anomaly
+                else f"Failover from severity escalation (mae={mean_abs_error:.4f}, action={action})"
+            )
             state.add_anomaly(
                 {
                     "ts_ms": entry["ts_ms"],
                     "severity": severity,
-                    "message": f"ED-LSTM flagged anomaly (action={action})",
+                    "message": msg,
                 }
             )
 

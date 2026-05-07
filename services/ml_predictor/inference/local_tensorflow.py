@@ -13,9 +13,15 @@ from shared.utils.timeutil import now_ms
 class LocalTensorFlowInferenceAdapter:
     FEATURE_ORDER = ["cpu", "request_rate", "latency_ms", "network_mbps", "errors"]
 
-    def __init__(self, model_path: str, k_sigma: float = 3.0) -> None:
+    def __init__(
+        self,
+        model_path: str,
+        k_sigma: float = 2.5,
+        min_error_samples: int = 3,
+    ) -> None:
         self._model: keras.Model = keras.models.load_model(model_path, compile=False)
         self._k = k_sigma
+        self._min_err_samples = max(1, min_error_samples)
         self._error_history: list[float] = []
 
     async def predict(self, window: list[list[float]]) -> dict:
@@ -34,7 +40,7 @@ class LocalTensorFlowInferenceAdapter:
         mu = float(np.mean(errs))
         sd = float(np.std(errs) + 1e-8)
         threshold = mu + self._k * sd
-        anomaly = mae > threshold and len(errs) >= 5
+        anomaly = mae > threshold and len(errs) >= self._min_err_samples
         return {
             "predicted_future": y_hat.tolist(),
             "predicted_next": pred_next,

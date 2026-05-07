@@ -7,12 +7,12 @@ Pushes to MetricsAdapter (mock or CloudWatch) on an interval.
 
 
 import asyncio
-import math
 import random
 import time
 from typing import Any
 
 from shared.config.settings import get_settings
+from shared.metrics_nominal_demo import nominal_metrics_phase
 from shared.utils.timeutil import now_ms
 
 from cloud_adapters.dependency_factory import get_metrics_adapter
@@ -39,18 +39,23 @@ class MetricSimulator:
     def set_scenario(self, name: str) -> None:
         self._scenario = name
 
+    def get_scenario(self) -> str:
+        return self._scenario
+
     async def _tick(self) -> dict[str, float]:
         t = time.time() - self._t0
         rng = random.Random(int(t // 5))
 
-        base_cpu = 0.35 + 0.04 * math.sin(t / 30)
-        req = 180 + 20 * math.sin(t / 25)
-        lat = 45 + 5 * math.sin(t / 40)
-        net = 55 + 10 * math.sin(t / 35)
-        err = 0.01
+        # Steady orbit: human-readable normals (CPU %, latency ms, modest error fraction).
+        base = nominal_metrics_phase(t / 12.0)
+        base_cpu = base["cpu_utilization"]
+        req = base["request_rate"]
+        lat = base["latency_ms"]
+        net = base["network_mbps"]
+        err = base["error_rate"]
 
         if self._scenario == "cpu_spike":
-            base_cpu = min(0.95, base_cpu + 0.45 + 0.01 * rng.random())
+            base_cpu = min(100.0, base_cpu + 48.0 + 2.0 * rng.random())
         elif self._scenario == "request_surge":
             req = req * 2.8 + 50
             lat = lat * 1.4
@@ -58,14 +63,14 @@ class MetricSimulator:
             net = net * 0.35
             lat = lat * 2.2
         elif self._scenario == "instance_unhealthy":
-            err = 0.12 + 0.05 * rng.random()
+            err = min(1.0, 0.12 + 0.05 * rng.random())
             lat = lat * 3
         elif self._scenario == "periodic_failure":
             if int(t) % 90 < 12:
                 lat = lat * 2.5
-                err = 0.08
+                err = min(1.0, max(err, 0.08))
 
-        base_cpu = min(1.0, max(0.0, base_cpu))
+        base_cpu = min(100.0, max(0.0, base_cpu))
         err = min(1.0, max(0.0, err))
 
         return {

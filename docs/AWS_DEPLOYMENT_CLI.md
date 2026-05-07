@@ -443,11 +443,10 @@ aws iam create-policy --policy-name StreamVaultAppPolicy --policy-document file:
 
 ## Part J — SageMaker (optional)
 
-The code path **`SageMakerInferenceAdapter`** expects a deployed endpoint and a JSON body `{"instances": [window]}`. Training/deploying a custom container is **not** scripted here.
+The **`SageMakerInferenceAdapter`** sends `{"instances": [window]}` and expects JSON with **`predictions`** (see **`docs/SAGEMAKER_ENDPOINT.md`** and **`scripts/sagemaker/README.md`** for packaging `ed_lstm_demo.keras` + **`scripts/sagemaker/inference.py`**).
 
-**Practical default:** keep **`ed_lstm_demo.keras`** on the EC2 host and **`ML_MODEL_PATH`** pointing to it so **`LocalTensorFlowInferenceAdapter`** is used (no SageMaker required).
-
-To force SageMaker: remove or relocate the `.keras` file, set `SAGEMAKER_ENDPOINT_NAME`, and align the endpoint’s input/output schema with `cloud_adapters/aws/sagemaker/model_inference_adapter.py`.
+- **Local model on API host:** leave **`ML_USE_SAGEMAKER`** unset/false and keep **`ML_MODEL_PATH`** pointing at **`ed_lstm_demo.keras`**.
+- **Hosted inference:** set **`SAGEMAKER_ENDPOINT_NAME`**, enable **`ML_USE_SAGEMAKER=true`** (so SageMaker is used even if a `.keras` file exists on disk), and grant **`sagemaker:InvokeEndpoint`** to the API role.
 
 ---
 
@@ -485,7 +484,7 @@ That stack **does not** replace the full guide today—it is a starting point.
 | `NoCredentialsError` | `AWS_PROFILE`, instance role attachment |
 | DB connection refused | RDS SG ingress from `EC2_SG`, `DATABASE_URL` host/port |
 | CORS errors | `CORS_ORIGINS` includes exact browser origin (scheme+host+port) |
-| ML mock only | `.keras` path exists; or SageMaker env + no local file |
+| ML mock only | No `.keras` at `ML_MODEL_PATH`, no `SAGEMAKER_ENDPOINT_NAME`, or AWS mode off; or fix IAM / `ML_USE_SAGEMAKER` |
 
 ---
 

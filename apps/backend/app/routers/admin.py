@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 import httpx
 
 from shared.config.settings import get_settings
@@ -14,6 +14,7 @@ from cloud_adapters.dependency_factory import get_dns_adapter, get_metrics_adapt
 from cloud_adapters.mocks import state
 from services.monitoring.metric_simulator import get_simulator
 from services.recovery_orchestrator.engine import RecoveryEngine
+from shared.predefined_demo_windows import demo_window_documentation
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -60,9 +61,12 @@ async def region_status() -> dict[str, Any]:
 
 
 @router.post("/scenario")
-async def set_scenario(body: ScenarioRequest) -> dict[str, str]:
+async def set_scenario(body: ScenarioRequest) -> dict[str, Any]:
     get_simulator().set_scenario(body.scenario)
-    return {"scenario": body.scenario}
+    return {
+        "scenario": body.scenario,
+        "hint": "Simulator will push updated metrics on its interval; click Run ED-LSTM + policy to see ml_input.window in the response.",
+    }
 
 
 @router.post("/failover/manual")
@@ -93,10 +97,22 @@ async def notifications() -> dict[str, Any]:
     return {"notifications": state.get_notifications()[-50:]}
 
 
+@router.get("/prediction/demo-presets")
+async def prediction_demo_presets() -> dict[str, Any]:
+    doc = demo_window_documentation()
+    doc["server_default_preset"] = get_settings().ml_demo_window_preset
+    return doc
+
+
 @router.post("/prediction/run")
-async def run_prediction() -> dict[str, Any]:
+async def run_prediction(
+    preset: str | None = Query(
+        None,
+        description="Overrides ML_DEMO_WINDOW_PRESET for this call (e.g. normal, high_cpu).",
+    ),
+) -> dict[str, Any]:
     settings = get_settings()
-    window, _ = await build_feature_window(lookback=24)
+    window, timestamps_tail_ms, source = await build_feature_window(lookback=24, preset=preset)
     if settings.ml_use_standalone_service:
         async with httpx.AsyncClient(timeout=30.0) as client:
             r = await client.post(f"{settings.ml_service_url}/predict", json={"window": window})
@@ -111,13 +127,34 @@ async def run_prediction() -> dict[str, Any]:
     severity = min(1.0, mae / max(pred.get("threshold_dynamic", 1.0), 0.1))
     engine = RecoveryEngine()
     decision = await engine.evaluate(anomaly=anomaly, severity=severity, mean_abs_error=mae)
-    return {"prediction": pred, "decision": decision}
+    return {
+        "prediction": pred,
+        "decision": decision,
+        "ml_window_source": source,
+        "metric_simulator_scenario": get_simulator().get_scenario(),
+        "ml_input": {
+            "namespace": NS,
+            "feature_order": list(METRIC_NAMES),
+            "lookback_steps": len(window),
+            "window": window,
+            "timestamps_tail_ms": timestamps_tail_ms,
+            "description": (
+                "Rows are oldest→newest time steps fed to the model; each row matches feature_order "
+                "(raw units from the metrics adapter, e.g. CPU %, req/s, ms)."
+            ),
+        },
+    }
 
 
 @router.get("/charts/forecast")
-async def forecast_chart() -> dict[str, Any]:
+async def forecast_chart(
+    preset: str | None = Query(
+        None,
+        description="Optional frozen window preset for chart (matches /prediction/run).",
+    ),
+) -> dict[str, Any]:
     """ED-LSTM future trend for visualization (uses last window)."""
-    window, _ = await build_feature_window(24)
+    window, _, source = await build_feature_window(24, preset=preset)
     adapter = get_model_inference_adapter()
     pred = await adapter.predict(window)
     future = pred.get("predicted_future")
@@ -125,4 +162,4 @@ async def forecast_chart() -> dict[str, Any]:
         series = future[0]
     else:
         series = pred.get("predicted_next", [])
-    return {"forecast": series, "raw": pred}
+    return {"forecast": series, "raw": pred, "ml_window_source": source}

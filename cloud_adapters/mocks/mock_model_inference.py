@@ -24,5 +24,8 @@ class MockModelInferenceAdapter:
             "mean_abs_error": err,
             "anomaly": err > threshold,
             "threshold": threshold,
+            # Router computes severity = mae / threshold_dynamic; must match anomaly scale
+            # or failover never fires while "warn" does (default threshold_dynamic was 1.0).
+            "threshold_dynamic": threshold,
             "backend": "mock_numpy",
         }

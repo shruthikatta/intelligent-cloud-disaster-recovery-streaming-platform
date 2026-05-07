@@ -64,6 +64,7 @@ Never commit secrets. Use `.env.aws` locally (gitignored pattern) or Secrets Man
 | `EVENTBRIDGE_BUS_NAME` | Event bus name (default `default`) |
 | `LAMBDA_RECOVERY_ARN` | Function for recovery workflow |
 | `SAGEMAKER_ENDPOINT_NAME` | For `SageMakerInferenceAdapter` |
+| `ML_USE_SAGEMAKER` | If `true`, use SageMaker even when `ML_MODEL_PATH` exists (still needs endpoint + AWS mode) |
 | `ROUTE53_HOSTED_ZONE_ID` | For Route 53 adapter |
 | `DATABASE_URL` | e.g. `mysql+aiomysql://user:pass@rds-host:3306/db` (install async MySQL driver if used) |
 
@@ -123,7 +124,8 @@ Never commit secrets. Use `.env.aws` locally (gitignored pattern) or Secrets Man
 ### SageMaker
 
 - **File:** `cloud_adapters/aws/sagemaker/model_inference_adapter.py`
-- Payload format must match what your endpoint expects; adjust `model_inference_adapter.py` if your model wrapper differs.
+- Set `SAGEMAKER_ENDPOINT_NAME` and `ML_USE_SAGEMAKER=true` to always use the endpoint when the local `.keras` file is still present.
+- Deploy with **`scripts/sagemaker/inference.py`** + **`docs/SAGEMAKER_ENDPOINT.md`** / **`scripts/sagemaker/README.md`**; adjust the adapter only if your endpoint returns a different JSON shape.
 
 ### SNS / SQS
 

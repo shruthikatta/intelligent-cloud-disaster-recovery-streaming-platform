@@ -97,7 +97,7 @@ Set `APP_MODE=aws`, `USE_REAL_AWS=true`, fill AWS env vars (see `.env.aws.exampl
 |--------|-----|
 | `ModuleNotFoundError` for `apps` | Export `PYTHONPATH=.` from repository root |
 | CORS errors | Add your dev origin to `CORS_ORIGINS` in `.env` |
-| ML always “mock” | Train model to `services/ml_predictor/models/ed_lstm_demo.keras` or configure SageMaker endpoint |
+| ML always “mock” | Train model to `services/ml_predictor/models/ed_lstm_demo.keras`, or set `SAGEMAKER_ENDPOINT_NAME` + `ML_USE_SAGEMAKER=true` (see `docs/SAGEMAKER_ENDPOINT.md`) |
 | `No module named 'greenlet'` | Run `pip install greenlet` (listed in `requirements.txt` for SQLAlchemy asyncio) |
 | `No matching distribution found for tensorflow` | Use Python 3.10–3.12 in a venv; `requirements.txt` pins TensorFlow to a current PyPI release. On Python 3.13+, TensorFlow may be unavailable—use 3.12 or comment out `tensorflow` for API-only demo |
 | `uvicorn: command not found` | Activate `.venv` or run `python -m uvicorn ...` |

@@ -46,8 +46,15 @@ class AppSettings(BaseSettings):
         default="services/ml_predictor/models/ed_lstm_demo.keras",
         alias="ML_MODEL_PATH",
     )
+    # When true (with APP_MODE=aws and SAGEMAKER_ENDPOINT_NAME), use SageMaker even if ML_MODEL_PATH exists.
+    ml_use_sagemaker: bool = Field(default=False, alias="ML_USE_SAGEMAKER")
     ml_service_url: str = Field(default="http://127.0.0.1:8001", alias="ML_SERVICE_URL")
     ml_use_standalone_service: bool = Field(default=False, alias="ML_USE_STANDALONE_SERVICE")
+    # When set (e.g. normal / high_cpu), prediction uses data/demo_windows/predefined_windows.json
+    ml_demo_window_preset: str | None = Field(default=None, alias="ML_DEMO_WINDOW_PRESET")
+    # ED-LSTM dynamic threshold: anomaly when mae > mean(errors) + k*std(errors); needs min_history runs.
+    ml_anomaly_k_sigma: float = Field(default=2.5, alias="ML_ANOMALY_K_SIGMA")
+    ml_anomaly_min_history: int = Field(default=3, alias="ML_ANOMALY_MIN_HISTORY")
 
     # CORS
     cors_origins: str = Field(

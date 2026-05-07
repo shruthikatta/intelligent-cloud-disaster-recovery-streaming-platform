@@ -105,24 +105,38 @@ def get_queue_adapter() -> "QueueAdapter":
 
 
 def get_model_inference_adapter() -> "ModelInferenceAdapter":
-    """Prefer local ED-LSTM file if present; else SageMaker in AWS; else mock."""
+    """Resolve ML backend: optional SageMaker first, else local .keras, else SageMaker in AWS, else mock."""
     from pathlib import Path
 
     from cloud_adapters.mocks.mock_model_inference import MockModelInferenceAdapter
 
     settings = get_settings()
     path = Path(settings.ml_model_path)
+
+    def _sagemaker_configured() -> bool:
+        if not _use_aws(settings):
+            return False
+        from cloud_adapters.aws.config.aws_settings import get_aws_settings
+
+        return bool(get_aws_settings().sagemaker_endpoint_name)
+
+    if settings.ml_use_sagemaker and _sagemaker_configured():
+        from cloud_adapters.aws.sagemaker.model_inference_adapter import SageMakerInferenceAdapter
+
+        return SageMakerInferenceAdapter()
+
     if path.exists():
         from services.ml_predictor.inference.local_tensorflow import LocalTensorFlowInferenceAdapter
 
-        return LocalTensorFlowInferenceAdapter(str(path))
+        return LocalTensorFlowInferenceAdapter(
+            str(path),
+            k_sigma=settings.ml_anomaly_k_sigma,
+            min_error_samples=settings.ml_anomaly_min_history,
+        )
 
-    if _use_aws(settings):
-        from cloud_adapters.aws.config.aws_settings import get_aws_settings
+    if _sagemaker_configured():
+        from cloud_adapters.aws.sagemaker.model_inference_adapter import SageMakerInferenceAdapter
 
-        if get_aws_settings().sagemaker_endpoint_name:
-            from cloud_adapters.aws.sagemaker.model_inference_adapter import SageMakerInferenceAdapter
-
-            return SageMakerInferenceAdapter()
+        return SageMakerInferenceAdapter()
 
     return MockModelInferenceAdapter()
