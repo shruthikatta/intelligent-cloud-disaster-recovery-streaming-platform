@@ -23,6 +23,19 @@ from cloud_adapters.mocks import state
 
 Action = Literal["monitor", "warn", "failover"]
 
+# Metric simulator failure modes (see `POST /admin/scenario`). Steady state must not use
+# severity-only failover: MAE/threshold ratio is often high even when `anomaly` is false
+# (e.g. raw window vs scaled model), which would false-trigger DR on "steady".
+_METRIC_SIMULATOR_STRESS_SCENARIOS = frozenset(
+    {
+        "cpu_spike",
+        "request_surge",
+        "network_degradation",
+        "instance_unhealthy",
+        "periodic_failure",
+    }
+)
+
 
 class RecoveryEngine:
     async def evaluate(
@@ -30,13 +43,14 @@ class RecoveryEngine:
         anomaly: bool,
         severity: float,
         mean_abs_error: float,
+        metric_scenario: str | None = None,
     ) -> dict[str, Any]:
         settings = get_settings()
         action: Action = "monitor"
-        # Failover used to require anomaly=True; ED-LSTM often leaves anomaly=False while
-        # mean_abs_error / threshold_dynamic still implies severe drift → endless "warn".
         model_failover = anomaly and severity > 0.5
-        stress_failover = severity >= 0.75
+        stress_failover = (
+            metric_scenario in _METRIC_SIMULATOR_STRESS_SCENARIOS and severity >= 0.75
+        )
         should_failover = model_failover or stress_failover
         should_warn = (anomaly or severity > 0.25) and not should_failover
 
@@ -45,16 +59,20 @@ class RecoveryEngine:
         elif should_warn:
             action = "warn"
 
+        failover_trigger: str | None = None
+        if should_failover:
+            if model_failover:
+                failover_trigger = "model_anomaly"
+            elif stress_failover:
+                failover_trigger = "severity_escalation"
+
         detail = {
             "anomaly": anomaly,
             "severity": severity,
             "mae": mean_abs_error,
+            "metric_scenario": metric_scenario,
             "action": action,
-            "failover_trigger": (
-                "model_anomaly"
-                if should_failover and model_failover
-                else ("severity_escalation" if should_failover and stress_failover else None)
-            ),
+            "failover_trigger": failover_trigger,
             "primary_region": settings.primary_region,
             "dr_region": settings.dr_region,
         }
@@ -96,9 +114,9 @@ class RecoveryEngine:
         state.append_timeline(entry)
         if anomaly or action == "failover":
             msg = (
-                f"ED-LSTM flagged anomaly (action={action})"
+                f"ED-LSTM flagged anomaly (action={action}, mae={mean_abs_error:.4f})"
                 if anomaly
-                else f"Failover from severity escalation (mae={mean_abs_error:.4f}, action={action})"
+                else f"Failover from severity escalation (action={action}, mae={mean_abs_error:.4f})"
             )
             state.add_anomaly(
                 {

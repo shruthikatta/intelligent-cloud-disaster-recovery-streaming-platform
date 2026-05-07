@@ -126,7 +126,12 @@ async def run_prediction(
     anomaly = bool(pred.get("anomaly", False))
     severity = min(1.0, mae / max(pred.get("threshold_dynamic", 1.0), 0.1))
     engine = RecoveryEngine()
-    decision = await engine.evaluate(anomaly=anomaly, severity=severity, mean_abs_error=mae)
+    decision = await engine.evaluate(
+        anomaly=anomaly,
+        severity=severity,
+        mean_abs_error=mae,
+        metric_scenario=get_simulator().get_scenario(),
+    )
     return {
         "prediction": pred,
         "decision": decision,
