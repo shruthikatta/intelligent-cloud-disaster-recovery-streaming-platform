@@ -126,13 +126,16 @@ def get_model_inference_adapter() -> "ModelInferenceAdapter":
         return SageMakerInferenceAdapter()
 
     if path.exists():
-        from services.ml_predictor.inference.local_tensorflow import LocalTensorFlowInferenceAdapter
-
-        return LocalTensorFlowInferenceAdapter(
-            str(path),
-            k_sigma=settings.ml_anomaly_k_sigma,
-            min_error_samples=settings.ml_anomaly_min_history,
-        )
+        try:
+            from services.ml_predictor.inference.local_tensorflow import LocalTensorFlowInferenceAdapter
+        except ImportError:
+            pass
+        else:
+            return LocalTensorFlowInferenceAdapter(
+                str(path),
+                k_sigma=settings.ml_anomaly_k_sigma,
+                min_error_samples=settings.ml_anomaly_min_history,
+            )
 
     if _sagemaker_configured():
         from cloud_adapters.aws.sagemaker.model_inference_adapter import SageMakerInferenceAdapter

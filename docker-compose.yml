@@ -6,7 +6,7 @@ services:
     working_dir: /app
     volumes:
       - .:/app
-    command: bash -lc "pip install -r requirements.txt && PYTHONPATH=. python -m uvicorn apps.backend.app.main:app --host 0.0.0.0 --port 8000"
+    command: bash -lc "pip install -r requirements-deploy.txt && PYTHONPATH=. python -m uvicorn apps.backend.app.main:app --host 0.0.0.0 --port 8000"
     ports:
       - "8000:8000"
     environment:

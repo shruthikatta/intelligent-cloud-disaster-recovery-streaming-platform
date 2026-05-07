@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 """
-Mock ED-LSTM inference: lightweight numpy extrapolation when TF model absent.
-Replaced by TensorFlow adapter in production path when model file exists.
+Mock ED-LSTM inference: lightweight extrapolation when TF model absent.
+Replaced by TensorFlow adapter when the model file exists and TensorFlow is installed.
 """
 
 

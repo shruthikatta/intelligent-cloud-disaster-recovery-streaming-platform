@@ -1,0 +1,26 @@
+# Minimal install for API deployment (FastAPI, DB, AWS SDK, SageMaker client payload helpers).
+# Does not include TensorFlow — local .keras inference falls back to SageMaker or mock if TF is absent.
+# Usage: pip install -r requirements-deploy.txt
+
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+pydantic==2.10.4
+pydantic-settings==2.7.0
+email-validator==2.2.0
+httpx==0.28.1
+python-jose[cryptography]==3.3.0
+bcrypt>=4.0.0
+
+sqlalchemy==2.0.36
+greenlet>=3.0.0
+aiosqlite==0.20.0
+pymysql==1.1.1
+aiomysql==0.2.0
+
+boto3==1.35.90
+botocore==1.35.90
+
+numpy>=1.26.0,<2.2.0
+
+python-dotenv==1.0.1
